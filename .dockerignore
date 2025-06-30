@@ -1,0 +1,21 @@
+# Docker
+docker-compose.yml
+Dockerfile
+
+# Env
+.env
+.env.template
+
+# PyCharm
+.idea
+
+# VsCode
+.vscode
+
+postgres/
+
+node_modules
+
+# Git
+.gitlab-ci.yml
+.git

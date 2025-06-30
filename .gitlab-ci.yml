@@ -1,0 +1,72 @@
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_BUILDKIT: 1
+  REGISTRY_IMAGE: "$SELF_DOCKER_REGISTRY/$CI_PROJECT_PATH"
+
+default:
+  tags:
+    - docker-in-docker
+
+.docker:
+  image:
+    name: "registry.lan.mineplay/docker:27.2.0"
+    pull_policy: if-not-present
+  interruptible: true
+  services:
+    - name: "registry.lan.mineplay/docker:27.2.0"
+      pull_policy: if-not-present
+      alias: docker
+  before_script:
+    - docker login -u "$SELF_DOCKER_REGISTRY_USER" -p "$SELF_DOCKER_REGISTRY_PASSWORD" "$SELF_DOCKER_REGISTRY"
+    - docker login -u "$CI_DEPENDENCY_PROXY_USER" -p "$CI_DEPENDENCY_PROXY_PASSWORD" "$CI_SERVER_HOST"
+
+stages:
+  - build
+  - deploy
+
+.build_template: &build_template
+  stage: build
+  extends: .docker
+  script:
+    - docker pull "$DOCKER_IMAGE_NAME" || true
+    - docker build --progress=plain --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from "$DOCKER_IMAGE_NAME" --tag "$DOCKER_IMAGE_NAME" .
+    - docker push "$DOCKER_IMAGE_NAME"
+
+build:dev:
+  <<: *build_template
+  variables:
+    DOCKER_IMAGE_NAME: "$REGISTRY_IMAGE:dev"
+  only:
+    - dev
+  environment:
+    name: dev
+
+build:prod:
+  <<: *build_template
+  variables:
+    DOCKER_IMAGE_NAME: "$REGISTRY_IMAGE:prod"
+  only:
+    - prod
+  environment:
+    name: prod
+
+deploy:dev:
+  stage: deploy
+  image:
+    name: "registry.lan.mineplay/docker:27.2.0"
+    pull_policy: if-not-present
+  script:
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY_DEV" | tr -d '\r' | ssh-add -
+    - scp -o StrictHostKeyChecking=no .env.template $DEPLOY_USER_DEV@$DEPLOY_HOST_DEV:/srv/backend_dev/.env.template
+    - ssh -o StrictHostKeyChecking=no $DEPLOY_USER_DEV@$DEPLOY_HOST_DEV "
+      cd /srv/backend_dev &&
+      dotenv-linter compare .env .env.template &&
+      docker compose pull &&
+      docker compose down &&
+      docker compose up -d
+      "
+  only:
+    - dev
+  environment:
+    name: dev

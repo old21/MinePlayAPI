@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <title></title>
+  <style>
+    .mail__wrapper {
+      background-color: #1F1F1F;
+      padding: 30px;
+      gap: 35px;
+    }
+
+    .mail__box {
+      border-radius: 25px;
+      background-color: #1A1A1A;
+      padding: 25px;
+    }
+
+    .mail__text > h3 {
+      font-family: "Verdana", sans-serif;
+      font-weight: 700;
+      color: white;
+      font-size: 25px;
+      text-align: center;
+    }
+
+    .mail__text > p {
+      font-family: "Verdana", sans-serif;
+      font-weight: 500;
+      margin-top: 5px;
+      color: #5D5D5D;
+      font-size: 15px;
+      text-align: center;
+    }
+
+    .mail__code {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .mail__code__item {
+      background-color: #212121;
+      border-radius: 20px;
+      padding: 15px 10px;
+      border: 1px solid #2A2A2A;
+    }
+
+    .mail__code__item > p {
+      font-family: "Verdana", sans-serif;
+      font-weight: 700;
+      color: white;
+      font-size: 25px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="mail__wrapper">
+  <img src="{{ assetPath }}/mail/logo.png" alt="Логотип Mine-Play.Ru">
+  <div class="mail__text">
+    <h3>Код подтверждения</h3>
+    <p>С аккаунта {{ name }} поступил запрос на смену Email</p>
+  </div>
+
+  <div class="mail__box">
+    <div class="mail__code">
+      <div class="mail__code__item">
+        <p>{{ code.[0] }}</p>
+      </div>
+      <div class="mail__code__item">
+        <p>{{ code.[1] }}</p>
+      </div>
+      <div class="mail__code__item">
+        <p>{{ code.[2] }}</p>
+      </div>
+      <div class="mail__code__item">
+        <p>{{ code.[3] }}</p>
+      </div>
+      <div class="mail__code__item">
+        <p>{{ code.[4] }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
